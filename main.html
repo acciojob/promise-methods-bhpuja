@@ -4,13 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom Promise Methods</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            color: #0056b3;
+        }
+
+        #output-container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #output {
+            white-space: pre-wrap;
+            background: #f1f1f1;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        button {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            background-color: #0056b3;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #004494;
+        }
+    </style>
 </head>
 <body>
-    <h1>Testing Custom Promise Methods</h1>
-    <pre id="output"></pre>
+    <h1>Custom Promise Methods</h1>
+    <div id="output-container">
+        <h2>Output</h2>
+        <div id="output"></div>
+        <button id="run-tests">Run Tests</button>
+    </div>
 
     <script>
-        // Implementing the custom Promise methods
+        // Custom Promise methods implementation
 
         // myRace
         Promise.myRace = function (promises) {
@@ -73,41 +131,47 @@
             });
         };
 
-        // Test cases
-        const output = document.getElementById('output');
+        // Function to run tests
+        function runTests() {
+            const output = document.getElementById('output');
+            output.textContent = ''; // Clear output
 
-        function logOutput(result) {
-            output.textContent += result + '\n';
+            function logOutput(result) {
+                output.textContent += result + '\n';
+            }
+
+            // Test myRace
+            Promise.myRace([
+                new Promise(res => setTimeout(() => res(0), 500)),
+                Promise.resolve(5),
+                new Promise(res => setTimeout(() => res(10), 1000)),
+            ]).then(logOutput).catch(error => logOutput('error: ' + error));
+
+            // Test myAny
+            Promise.myAny([
+                new Promise(res => setTimeout(() => res(0), 500)),
+                Promise.reject(5),
+                new Promise(res => setTimeout(() => res(10), 1000)),
+            ]).then(logOutput).catch(error => logOutput('error: ' + error));
+
+            // Test myAll
+            Promise.myAll([
+                new Promise(res => setTimeout(() => res(0), 500)),
+                Promise.resolve(5),
+                new Promise(res => setTimeout(() => res(10), 1000)),
+            ]).then(result => logOutput(JSON.stringify(result)))
+              .catch(error => logOutput('error: ' + error));
+
+            // Test myAllSettled
+            Promise.myAllSettled([
+                new Promise(res => setTimeout(() => res(0), 500)),
+                Promise.reject(5),
+                new Promise(res => setTimeout(() => res(10), 1000)),
+            ]).then(result => logOutput(JSON.stringify(result)));
         }
 
-        // myRace
-        Promise.myRace([
-            new Promise(res => setTimeout(() => res(0), 500)),
-            Promise.resolve(5),
-            new Promise(res => setTimeout(() => res(10), 1000)),
-        ]).then(logOutput).catch(error => logOutput('error: ' + error));
-
-        // myAny
-        Promise.myAny([
-            new Promise(res => setTimeout(() => res(0), 500)),
-            Promise.resolve(5),
-            new Promise(res => setTimeout(() => res(10), 1000)),
-        ]).then(logOutput).catch(error => logOutput('error: ' + error));
-
-        // myAll
-        Promise.myAll([
-            new Promise(res => setTimeout(() => res(0), 500)),
-            Promise.resolve(5),
-            new Promise(res => setTimeout(() => res(10), 1000)),
-        ]).then(result => logOutput(JSON.stringify(result)))
-          .catch(error => logOutput('error: ' + error));
-
-        // myAllSettled
-        Promise.myAllSettled([
-            new Promise(res => setTimeout(() => res(0), 500)),
-            Promise.reject(5),
-            new Promise(res => setTimeout(() => res(10), 1000)),
-        ]).then(result => logOutput(JSON.stringify(result)));
+        // Add event listener to button
+        document.getElementById('run-tests').addEventListener('click', runTests);
     </script>
 </body>
 </html>
